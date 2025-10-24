@@ -5,6 +5,7 @@ from pathlib import Path
 # CRITICAL: Set Vercel environment BEFORE any other imports
 os.environ['VERCEL_ENV'] = 'production'
 os.environ['FLASK_ENV'] = 'production'
+print(f"🔧 api/index.py: Set VERCEL_ENV={os.environ.get('VERCEL_ENV')}")
 
 # Set up paths for module imports
 project_root = Path(__file__).parent.parent
