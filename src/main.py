@@ -44,12 +44,18 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 if VERCEL_ENV or not DATABASE_URL:
     # Vercel environment or local development: Use SQLite
     # This avoids PostgreSQL driver compilation issues in serverless
-    ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    DB_PATH = os.path.join(ROOT_DIR, 'database', 'app.db')
-    # ensure database directory exists
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
-    print(f"🗄️  Using SQLite database (Vercel/Local mode)")
+    if VERCEL_ENV:
+        # Vercel: Use in-memory database (temporary)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        print(f"🗄️  Using in-memory SQLite database (Vercel mode)")
+    else:
+        # Local development: Use file-based SQLite
+        ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        DB_PATH = os.path.join(ROOT_DIR, 'database', 'app.db')
+        # ensure database directory exists
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
+        print(f"🗄️  Using file-based SQLite database (Local mode)")
 else:
     # Local production testing with PostgreSQL
     database_url = DATABASE_URL
