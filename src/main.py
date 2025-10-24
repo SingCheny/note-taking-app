@@ -6,7 +6,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 
 # Flexible imports for different environments
@@ -88,6 +88,37 @@ db.init_app(app)
 migrate = Migrate(app, db)
 with app.app_context():
     db.create_all()
+
+
+@app.route('/api/health')
+def health():
+    """Simple health endpoint reporting DB mode (file/memory/external) and masked URI."""
+    uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    mode = 'unknown'
+    if not uri:
+        mode = 'none'
+    elif uri == 'sqlite:///:memory:':
+        mode = 'memory'
+    elif uri.startswith('sqlite:///'):
+        mode = 'file'
+    else:
+        mode = 'external'
+
+    masked = uri
+    if mode == 'external' and isinstance(uri, str):
+        try:
+            # mask credentials in URI if present
+            import re
+            masked = re.sub(r':/*[^:@]+:([^@]+)@', ':/*<redacted>@', uri)
+            masked = re.sub(r'://[^:@]+:([^@]+)@', '://<user>:<redacted>@', masked)
+        except Exception:
+            pass
+
+    return jsonify({
+        'status': 'ok',
+        'db_mode': mode,
+        'db_uri': masked
+    })
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
