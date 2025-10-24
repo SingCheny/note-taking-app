@@ -9,6 +9,7 @@ from src.models.user import db
 from src.routes.user import user_bp
 from src.routes.note import note_bp
 from src.models.note import Note
+from flask_migrate import Migrate
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
@@ -28,6 +29,8 @@ os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+# Initialize migrations
+migrate = Migrate(app, db)
 with app.app_context():
     db.create_all()
 

@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -31,7 +31,7 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            color: white;
+            color: #2d3748;
         }
 
         .header h1 {
@@ -59,6 +59,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
             height: fit-content;
+            /* make sure children drawing doesn't escape and create artifacts */
+            overflow: hidden;
         }
 
         .note-editor {
@@ -83,13 +85,13 @@
 
         .search-box:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4a5568;
         }
 
         .new-note-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -102,12 +104,15 @@
 
         .new-note-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(74, 85, 104, 0.4);
         }
 
         .notes-list {
             max-height: 500px;
             overflow-y: auto;
+            /* ensure no unexpected background or stacking artifacts */
+            background: transparent;
+            position: relative;
         }
 
         .note-item {
@@ -118,16 +123,37 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: #f8f9fa;
+            /* contain floats (drag handle) and avoid collapse/artifacts */
+            overflow: hidden;
         }
 
         .note-item:hover {
-            border-color: #667eea;
+            border-color: #4a5568;
             transform: translateX(5px);
         }
 
+        /* avoid tap-highlight or browser focus artefacts on click (mobile/desktop) */
+        .note-item, .notes-list {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* ensure no outline or unexpected focus rectangle appears on the list or items */
+        .notes-list:focus, .note-item:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* remove default focus outline that can appear as a dark bar in some browsers */
+        .note-item:focus {
+            outline: none;
+        }
+
         .note-item.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: #4a5568;
+            background: linear-gradient(135deg, rgba(74, 85, 104, 0.1) 0%, rgba(45, 55, 72, 0.1) 100%);
         }
 
         .note-title {
@@ -181,22 +207,22 @@
         }
 
         .btn-save {
-            background: #28a745;
+            background: #559c65;
             color: white;
         }
 
         .btn-save:hover {
-            background: #218838;
+            background: #295232;
             transform: translateY(-1px);
         }
 
         .btn-delete {
-            background: #dc3545;
+            background: #bb5862;
             color: white;
         }
 
         .btn-delete:hover {
-            background: #c82333;
+            background: #8a4950;
             transform: translateY(-1px);
         }
 
@@ -222,7 +248,7 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4a5568;
         }
 
         .form-textarea {
@@ -240,7 +266,7 @@
 
         .form-textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4a5568;
         }
 
         .empty-state {
@@ -303,25 +329,20 @@
             }
         }
 
-        /* Custom Scrollbar */
+        /* Hide the native scrollbar for the notes list to avoid the visible bar artifact
+           Scrolling still works via wheel/trackpad/touch. If you want an accessible
+           visible scrollbar we can implement a custom one instead. */
+        .notes-list {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+
         .notes-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .notes-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-
-        .notes-list::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 3px;
-        }
-
-        .notes-list::-webkit-scrollbar-thumb:hover {
-            background: #5a6fd8;
+            width: 0;
+            height: 0;
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
     <div class="container">
@@ -354,12 +375,30 @@
                 <div id="editorForm" style="display: none;">
                     <div class="form-group">
                         <label class="form-label" for="noteTitle">Title</label>
-                        <input type="text" class="form-input" id="noteTitle" placeholder="Enter note title...">
+                        <input type="text" class="form-input" id="noteTitle" placeholder="Enter note title..." maxlength="20">
+                        <div id="titleCounter" style="font-size:12px;color:#666;margin-top:6px;">0 / 20</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="noteContent">Content</label>
                         <textarea class="form-textarea" id="noteContent" placeholder="Start writing your note..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="noteTags">Tags</label>
+                        <input type="text" class="form-input" id="noteTags" placeholder="tag1, tag2" />
+                        <small style="color:#666; display:block; margin-top:6px;">Add comma-separated tags (e.g. ideas,personal).</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="eventDate">Event Date</label>
+                        <input type="date" class="form-input" id="eventDate" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="eventTime">Event Time</label>
+                        <input type="time" class="form-input" id="eventTime" />
+                        <small style="color:#666; display:block; margin-top:6px;">Optional: set a date and time for an event related to this note.</small>
                     </div>
                 </div>
 
@@ -371,10 +410,12 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         class NoteTaker {
             constructor() {
                 this.notes = [];
+                this.datePicker = null;
                 this.currentNote = null;
                 this.isLoading = false;
                 this.init();
@@ -382,8 +423,20 @@
 
             async init() {
                 this.bindEvents();
-                await this.loadNotes();
+                    this.initDatePicker();
+                    await this.loadNotes();
             }
+
+                initDatePicker() {
+                    const dateField = document.getElementById('eventDate');
+                    if (!dateField || typeof flatpickr === 'undefined') return;
+                    // initialize flatpickr with English locale (default) and minDate today
+                    this.datePicker = flatpickr(dateField, {
+                        dateFormat: 'Y-m-d',
+                        minDate: 'today',
+                        allowInput: true
+                    });
+                }
 
             bindEvents() {
                 document.getElementById('newNoteBtn').addEventListener('click', () => this.createNewNote());
@@ -402,8 +455,33 @@
                     }, 2000);
                 };
                 
-                document.getElementById('noteTitle').addEventListener('input', autoSave);
+                // Title input: auto-save + update counter
+                const titleInput = document.getElementById('noteTitle');
+                if (titleInput) {
+                    titleInput.addEventListener('input', autoSave);
+                    const titleCounter = document.getElementById('titleCounter');
+                    const updateTitleCounter = () => {
+                        const len = titleInput.value.length;
+                        if (titleCounter) titleCounter.textContent = `${len} / 20`;
+                    };
+                    titleInput.addEventListener('input', updateTitleCounter);
+                    // initialize counter
+                    updateTitleCounter();
+                }
                 document.getElementById('noteContent').addEventListener('input', autoSave);
+                // Tags, event date and event time inputs should also trigger auto-save
+                const tagsInput = document.getElementById('noteTags');
+                if (tagsInput) {
+                    tagsInput.addEventListener('input', autoSave);
+                }
+                const eventDateInput = document.getElementById('eventDate');
+                if (eventDateInput) {
+                    eventDateInput.addEventListener('change', autoSave);
+                }
+                const eventTimeInput = document.getElementById('eventTime');
+                if (eventTimeInput) {
+                    eventTimeInput.addEventListener('change', autoSave);
+                }
             }
 
             async loadNotes() {
@@ -426,20 +504,101 @@
 
             renderNotesList() {
                 const notesList = document.getElementById('notesList');
-                
+
                 if (this.notes.length === 0) {
                     notesList.innerHTML = '<div class="empty-state"><p>No notes yet. Create your first note!</p></div>';
                     return;
                 }
 
+                // sort by position if available, otherwise leave as-is
+                this.notes.sort((a, b) => (a.position || 0) - (b.position || 0));
+
                 notesList.innerHTML = this.notes.map(note => `
                     <div class="note-item ${this.currentNote && this.currentNote.id === note.id ? 'active' : ''}" 
-                         data-note-id="${note.id}" onclick="noteTaker.selectNote(${note.id})">
+                         data-note-id="${note.id}" draggable="true" onclick="noteTaker.selectNote(${note.id})">
+                        <div style="font-size:12px; color:#888; float:right;">☰</div>
                         <div class="note-title">${this.escapeHtml(note.title || 'Untitled')}</div>
                         <div class="note-preview">${this.escapeHtml(note.content || 'No content')}</div>
                         <div class="note-date">${this.formatDate(note.updated_at)}</div>
                     </div>
                 `).join('');
+
+                // attach drag handlers after rendering
+                this.attachDragHandlers();
+            }
+
+            attachDragHandlers() {
+                const list = document.getElementById('notesList');
+                if (!list) return;
+
+                let dragSrcEl = null;
+
+                list.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        dragSrcEl = item;
+                        item.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', item.dataset.noteId);
+                    });
+
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        item.classList.add('drag-over');
+                    });
+
+                    item.addEventListener('dragleave', (e) => {
+                        item.classList.remove('drag-over');
+                    });
+
+                    item.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        item.classList.remove('drag-over');
+                        const srcId = e.dataTransfer.getData('text/plain');
+                        if (!srcId) return;
+                        const srcEl = list.querySelector(`[data-note-id='${srcId}']`);
+                        if (srcEl && srcEl !== item) {
+                            const rect = item.getBoundingClientRect();
+                            const offset = e.clientY - rect.top;
+                            if (offset > rect.height / 2) {
+                                item.parentNode.insertBefore(srcEl, item.nextSibling);
+                            } else {
+                                item.parentNode.insertBefore(srcEl, item);
+                            }
+
+                            // build new order and send to server
+                            const newOrder = Array.from(list.querySelectorAll('.note-item')).map(n => parseInt(n.dataset.noteId));
+                            this.sendReorder(newOrder);
+                        }
+                    });
+
+                    item.addEventListener('dragend', (e) => {
+                        item.classList.remove('dragging');
+                        list.querySelectorAll('.note-item').forEach(n => n.classList.remove('drag-over'));
+                    });
+                });
+            }
+
+            async sendReorder(orderArray) {
+                try {
+                    const resp = await fetch('/api/notes/reorder', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order: orderArray })
+                    });
+
+                    if (!resp.ok) throw new Error('Failed to reorder on server');
+
+                    // update local notes order to match server
+                    const map = this.notes.reduce((m, n) => { m[n.id] = n; return m; }, {});
+                    this.notes = orderArray.map(id => map[id]).filter(Boolean);
+                    // re-render without losing selection
+                    this.renderNotesList();
+                } catch (err) {
+                    this.showMessage(`Error reordering notes: ${err.message}`, 'error');
+                    // fallback: reload from server
+                    this.loadNotes();
+                }
             }
 
             async selectNote(noteId) {
@@ -451,7 +610,32 @@
                 this.renderNotesList(); // Re-render to update active state
                 
                 document.getElementById('noteTitle').value = note.title || '';
+                // update title counter if present
+                const titleCounterNode = document.getElementById('titleCounter');
+                if (titleCounterNode) {
+                    const len = (note.title || '').length;
+                    titleCounterNode.textContent = `${Math.min(len, 20)} / 20`;
+                }
                 document.getElementById('noteContent').value = note.content || '';
+                // Populate tags if present
+                const tagsField = document.getElementById('noteTags');
+                if (tagsField) {
+                    tagsField.value = (note.tags && note.tags.length) ? note.tags.join(', ') : '';
+                }
+                // Populate event date/time if present
+                const dateField = document.getElementById('eventDate');
+                if (dateField) {
+                    if (this.datePicker) {
+                        if (note.event_date) this.datePicker.setDate(note.event_date, true, 'Y-m-d');
+                        else this.datePicker.clear();
+                    } else {
+                        dateField.value = note.event_date || '';
+                    }
+                }
+                const timeField = document.getElementById('eventTime');
+                if (timeField) {
+                    timeField.value = note.event_time || '';
+                }
                 document.getElementById('editorTitle').textContent = note.title || 'Untitled Note';
             }
 
@@ -466,7 +650,18 @@
                 
                 this.showEditor();
                 document.getElementById('noteTitle').value = '';
+                const titleCounterNodeNew = document.getElementById('titleCounter');
+                if (titleCounterNodeNew) titleCounterNodeNew.textContent = '0 / 20';
                 document.getElementById('noteContent').value = '';
+                const tagsField = document.getElementById('noteTags');
+                if (tagsField) tagsField.value = '';
+                const dateField = document.getElementById('eventDate');
+                if (dateField) {
+                    if (this.datePicker) this.datePicker.clear();
+                    else dateField.value = '';
+                }
+                const timeField = document.getElementById('eventTime');
+                if (timeField) timeField.value = '';
                 document.getElementById('editorTitle').textContent = 'New Note';
                 document.getElementById('noteTitle').focus();
                 
@@ -493,21 +688,59 @@
             async saveNote(isAutoSave = false) {
                 if (!this.currentNote) return;
 
-                const title = document.getElementById('noteTitle').value.trim();
+                let title = document.getElementById('noteTitle').value.trim();
                 const content = document.getElementById('noteContent').value.trim();
+                // enforce max length for title (20 chars)
+                if (title.length > 20) {
+                    title = title.slice(0, 20);
+                    const titleInputEl = document.getElementById('noteTitle');
+                    if (titleInputEl) titleInputEl.value = title;
+                    const titleCounterEl = document.getElementById('titleCounter');
+                    if (titleCounterEl) titleCounterEl.textContent = `${title.length} / 20`;
+                }
+                const tagsRaw = (document.getElementById('noteTags') || { value: '' }).value.trim();
+                const tags = tagsRaw === '' ? [] : tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+                let eventDate = (document.getElementById('eventDate') || { value: '' }).value.trim();
+                if (this.datePicker && this.datePicker.input) {
+                    eventDate = (this.datePicker.input.value || '').trim();
+                }
+                const eventTime = (document.getElementById('eventTime') || { value: '' }).value.trim();
 
-                if (!title && !content) {
+                // Validate event date is not earlier than today
+                if (eventDate) {
+                    // flatpickr enforces minDate, but validate again defensively
+                    const today = new Date().toISOString().split('T')[0];
+                    if (eventDate < today) {
+                        if (!isAutoSave) this.showMessage('Event date must be today or later', 'error');
+                        return;
+                    }
+                }
+
+                if (!title && !content && tags.length === 0 && !eventDate && !eventTime) {
                     if (!isAutoSave) {
-                        this.showMessage('Please enter a title or content', 'error');
+                        this.showMessage('Please enter a title, content, tags, or event date/time', 'error');
                     }
                     return;
                 }
+
+                const saveBtn = document.getElementById('saveBtn');
+                if (saveBtn) saveBtn.disabled = true;
 
                 try {
                     const noteData = {
                         title: title || 'Untitled',
                         content: content
                     };
+
+                    if (tags.length) {
+                        noteData.tags = tags;
+                    }
+                    if (eventDate) {
+                        noteData.event_date = eventDate;
+                    }
+                    if (eventTime) {
+                        noteData.event_time = eventTime;
+                    }
 
                     let response;
                     if (this.currentNote.id) {
@@ -526,27 +759,60 @@
                         });
                     }
 
-                    if (!response.ok) throw new Error('Failed to save note');
+                    // Try to parse response body as JSON for helpful messages
+                    let respBody = null;
+                    try { respBody = await response.json(); } catch (e) { /* ignore */ }
 
-                    const savedNote = await response.json();
+                    if (!response.ok) {
+                        const errMsg = (respBody && respBody.error) ? respBody.error : (response.statusText || 'Failed to save note');
+                        throw new Error(errMsg);
+                    }
+
+                    const savedNote = respBody || {};
+
+                    // Ensure savedNote has an id (backend should return it)
+                    if (!savedNote.id) {
+                        throw new Error('Server did not return saved note id');
+                    }
+
+                    // Update current note and notes list
                     this.currentNote = savedNote;
-                    
-                    // Update notes list
                     const existingIndex = this.notes.findIndex(n => n.id === savedNote.id);
                     if (existingIndex >= 0) {
                         this.notes[existingIndex] = savedNote;
                     } else {
                         this.notes.unshift(savedNote);
                     }
-                    
+
+                    // Update editor fields from the saved note to reflect server-normalized values
+                    document.getElementById('noteTitle').value = savedNote.title || '';
+                    const titleCounterEl = document.getElementById('titleCounter');
+                    if (titleCounterEl) titleCounterEl.textContent = `${(savedNote.title || '').length} / 20`;
+                    document.getElementById('noteContent').value = savedNote.content || '';
+                    const tagsField = document.getElementById('noteTags');
+                    if (tagsField) tagsField.value = (savedNote.tags && savedNote.tags.length) ? savedNote.tags.join(', ') : '';
+                    const timeField = document.getElementById('eventTime');
+                    if (timeField) timeField.value = savedNote.event_time || '';
+                    const dateField = document.getElementById('eventDate');
+                    if (dateField) {
+                        if (this.datePicker) {
+                            if (savedNote.event_date) this.datePicker.setDate(savedNote.event_date, true, 'Y-m-d');
+                            else this.datePicker.clear();
+                        } else {
+                            dateField.value = savedNote.event_date || '';
+                        }
+                    }
+
                     this.renderNotesList();
-                    document.getElementById('editorTitle').textContent = savedNote.title;
-                    
+                    document.getElementById('editorTitle').textContent = savedNote.title || 'Untitled Note';
+
                     if (!isAutoSave) {
                         this.showMessage('Note saved successfully!', 'success');
                     }
                 } catch (error) {
                     this.showMessage(`Error saving note: ${error.message}`, 'error');
+                } finally {
+                    if (saveBtn) saveBtn.disabled = false;
                 }
             }
 
