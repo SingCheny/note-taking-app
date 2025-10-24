@@ -89,6 +89,12 @@ celerybeat-schedule
 .env
 .env.*
 
+# Vercel
+.vercel
+
+# Database files
+database/
+
 # mypy
 .mypy_cache/
 
