@@ -15,16 +15,17 @@ sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(src_path))
 
 try:
-    # Try to import the Flask app
-    from main import app
-    print("Successfully imported app from main")
+    # Try to import the Flask app from src.main first (our actual app)
+    from src.main import app
+    print("Successfully imported app from src.main")
 except ImportError as e1:
-    print(f"Failed to import from main: {e1}")
+    print(f"Failed to import from src.main: {e1}")
     try:
-        from src.main import app
-        print("Successfully imported app from src.main")
+        # Fallback to main import (should not be needed)
+        from main import app
+        print("Successfully imported app from main")
     except ImportError as e2:
-        print(f"Failed to import from src.main: {e2}")
+        print(f"Failed to import from main: {e2}")
         # Create a minimal Flask app as fallback
         from flask import Flask
         app = Flask(__name__)
