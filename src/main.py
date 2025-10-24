@@ -60,10 +60,26 @@ else:
     # Local development: Use file-based SQLite
     ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     DB_PATH = os.path.join(ROOT_DIR, 'database', 'app.db')
-    # ensure database directory exists
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
-    print(f"🗄️  Using file-based SQLite database (Local mode)")
+    # ensure database directory exists (safe on read-only filesystems)
+    db_dir = os.path.dirname(DB_PATH)
+    use_file_db = True
+    try:
+        os.makedirs(db_dir, exist_ok=True)
+    except OSError as e:
+        # Errno 30 corresponds to read-only filesystem on some platforms
+        if getattr(e, 'errno', None) == 30:
+            print(f"⚠️ Could not create DB dir '{db_dir}': Read-only filesystem. Falling back to in-memory DB.")
+            use_file_db = False
+        else:
+            raise
+
+    if use_file_db:
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
+        print(f"🗄️  Using file-based SQLite database (Local mode)")
+    else:
+        # Fall back to in-memory DB to avoid startup crash in serverless/read-only envs
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        print(f"🗄️  Using in-memory SQLite database (fallback due to read-only FS)")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
