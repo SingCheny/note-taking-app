@@ -2,6 +2,10 @@ import sys
 import os
 from pathlib import Path
 
+# CRITICAL: Set Vercel environment BEFORE any other imports
+os.environ['VERCEL_ENV'] = 'production'
+os.environ['FLASK_ENV'] = 'production'
+
 # Set up paths for module imports
 project_root = Path(__file__).parent.parent
 src_path = project_root / 'src'
@@ -9,13 +13,6 @@ src_path = project_root / 'src'
 # Add both paths to ensure imports work
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(src_path))
-
-# Set environment variables for Vercel
-os.environ.setdefault('VERCEL_ENV', 'production')
-os.environ.setdefault('FLASK_ENV', 'production')
-
-# First set Vercel environment flag
-os.environ['VERCEL_ENV'] = 'production'
 
 try:
     # Try to import the Flask app
