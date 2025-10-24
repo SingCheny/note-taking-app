@@ -1,13 +1,28 @@
 import sys
 import os
+from pathlib import Path
 
-# Add the project root to the Python path
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+# Get the project root directory
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from src.main import app
+# Set environment variable for Flask to find static files
+os.environ.setdefault('FLASK_APP', 'app')
+
+try:
+    from src.main import app
+except ImportError as e:
+    # Fallback: try importing without src prefix
+    print(f"Import error: {e}")
+    sys.path.insert(0, str(project_root / 'src'))
+    from main import app
 
 # Vercel expects the Flask app to be available at module level
 application = app
 
+# For Vercel serverless
+def handler(request):
+    return app(request.environ, lambda *args: None)
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False)

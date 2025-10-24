@@ -1,14 +1,27 @@
 import os
 import sys
-# DON'T CHANGE THIS !!!
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from flask import Flask, send_from_directory
 from flask_cors import CORS
-from src.models.user import db
-from src.routes.user import user_bp
-from src.routes.note import note_bp
-from src.models.note import Note
+
+# Flexible imports for different environments
+try:
+    from src.models.user import db
+    from src.routes.user import user_bp
+    from src.routes.note import note_bp
+    from src.models.note import Note
+except ImportError:
+    # Fallback for Vercel environment
+    sys.path.insert(0, str(Path(__file__).parent))
+    from models.user import db
+    from routes.user import user_bp
+    from routes.note import note_bp
+    from models.note import Note
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 

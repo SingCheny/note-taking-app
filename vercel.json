@@ -8,11 +8,24 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|ico|svg))",
+      "dest": "api/index.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "api/index.py"
     }
   ],
   "env": {
     "PYTHON_VERSION": "3.11"
+  },
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
   }
 }
