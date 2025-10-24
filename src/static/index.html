@@ -239,6 +239,68 @@
             transform: translateY(-1px);
         }
 
+        /* Generate Note styles */
+        .generate-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .generate-section h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .generate-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .generate-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .language-select {
+            padding: 6px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 12px;
+            background: white;
+        }
+
+        .generate-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .generate-btn:hover {
+            background: #218838;
+        }
+
+        .generate-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -368,6 +430,21 @@
             <div class="sidebar">
                 <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search notes...">
                 <button class="new-note-btn" id="newNoteBtn">✨ New Note</button>
+                
+                <!-- Generate Note Section -->
+                <div class="generate-section">
+                    <h4>🤖 Generate Note</h4>
+                    <textarea class="generate-input" id="generateInput" placeholder="e.g. 'badminton tmr 5pm @polyu'"></textarea>
+                    <div class="generate-controls">
+                        <select class="language-select" id="languageSelect">
+                            <option value="English">English</option>
+                            <option value="Chinese">中文</option>
+                            <option value="Spanish">Español</option>
+                            <option value="French">Français</option>
+                        </select>
+                        <button class="generate-btn" id="generateBtn">Generate</button>
+                    </div>
+                </div>
                 
                 <div class="notes-list" id="notesList">
                     <div class="loading">Loading notes...</div>
@@ -499,6 +576,9 @@
                 }
                 const translateBtn = document.getElementById('translateBtn');
                 if (translateBtn) translateBtn.addEventListener('click', () => this.translateNote());
+                
+                const generateBtn = document.getElementById('generateBtn');
+                if (generateBtn) generateBtn.addEventListener('click', () => this.generateNote());
             }
 
             async loadNotes() {
@@ -909,6 +989,69 @@
                 } finally {
                     const translateBtn2 = document.getElementById('translateBtn');
                     if (translateBtn2) translateBtn2.disabled = false;
+                }
+            }
+
+            async generateNote() {
+                const input = document.getElementById('generateInput')?.value.trim();
+                const language = document.getElementById('languageSelect')?.value || 'English';
+
+                if (!input) {
+                    this.showMessage('Please enter some text to generate a note from', 'error');
+                    return;
+                }
+
+                try {
+                    const generateBtn = document.getElementById('generateBtn');
+                    if (generateBtn) generateBtn.disabled = true;
+                    this.showMessage('Generating note...', 'loading');
+
+                    const response = await fetch('/api/notes/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            input: input,
+                            language: language 
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.error || 'Note generation failed');
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.note) {
+                        // Add the new note to our notes array and refresh the list
+                        this.notes.unshift(data.note);
+                        this.renderNotesList();
+                        
+                        // Automatically select the generated note
+                        await this.selectNote(data.note.id);
+                        
+                        // Clear the generate input
+                        document.getElementById('generateInput').value = '';
+                        
+                        let successMsg = 'Note generated successfully!';
+                        if (data.structured_data) {
+                            successMsg += ` (Title: "${data.structured_data.Title}")`;
+                            if (data.structured_data.Date || data.structured_data.Time) {
+                                successMsg += ` with event on ${data.structured_data.Date || 'unknown date'}`;
+                                if (data.structured_data.Time) {
+                                    successMsg += ` at ${data.structured_data.Time}`;
+                                }
+                            }
+                        }
+                        this.showMessage(successMsg, 'success');
+                    } else {
+                        throw new Error('No note returned from server');
+                    }
+                } catch (error) {
+                    this.showMessage(`Error generating note: ${error.message}`, 'error');
+                } finally {
+                    const generateBtn2 = document.getElementById('generateBtn');
+                    if (generateBtn2) generateBtn2.disabled = false;
                 }
             }
 

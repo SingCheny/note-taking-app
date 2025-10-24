@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from src.models.note import Note, db
-from src.llm import translate_to_language
+from src.llm import translate_to_language, extract_structured_notes
+import json
 
 note_bp = Blueprint('note', __name__)
 
@@ -172,6 +173,83 @@ def reorder_notes():
 
         db.session.commit()
         return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@note_bp.route('/notes/generate', methods=['POST'])
+def generate_note():
+    """Generate a structured note from user input using LLM extraction."""
+    try:
+        data = request.json or {}
+        user_input = data.get('input', '').strip()
+        language = data.get('language', 'English')
+        
+        if not user_input:
+            return jsonify({'error': 'Input text is required'}), 400
+
+        # Call LLM to extract structured notes
+        llm_response = extract_structured_notes(user_input, lang=language)
+        
+        try:
+            # Parse the JSON response from LLM
+            structured_data = json.loads(llm_response)
+            
+            # Validate expected fields
+            title = structured_data.get('Title', 'Generated Note')
+            notes = structured_data.get('Notes', user_input)
+            tags = structured_data.get('Tags', [])
+            date_str = structured_data.get('Date')
+            time_str = structured_data.get('Time')
+            
+            # Create the note in database
+            note = Note(
+                title=title,
+                content=notes
+            )
+            
+            # Add tags if provided
+            if tags and isinstance(tags, list):
+                note.tags = ','.join(tags[:3])  # Limit to 3 tags as per system prompt
+            
+            # Add date if provided and valid
+            if date_str:
+                try:
+                    note.event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                except (ValueError, TypeError):
+                    pass  # Skip invalid dates
+            
+            # Add time if provided and valid
+            if time_str:
+                try:
+                    note.event_time = datetime.strptime(time_str, '%H:%M').time()
+                except (ValueError, TypeError):
+                    pass  # Skip invalid times
+            
+            db.session.add(note)
+            db.session.commit()
+            
+            return jsonify({
+                'note': note.to_dict(),
+                'structured_data': structured_data
+            }), 201
+            
+        except json.JSONDecodeError:
+            # Fallback: create note with original input if LLM didn't return valid JSON
+            note = Note(
+                title='Generated Note',
+                content=llm_response  # Use raw LLM response as content
+            )
+            
+            db.session.add(note)
+            db.session.commit()
+            
+            return jsonify({
+                'note': note.to_dict(),
+                'warning': 'LLM returned non-JSON response, used as content'
+            }), 201
+            
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
