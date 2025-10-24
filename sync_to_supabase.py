@@ -64,7 +64,7 @@ def sync_notes_to_supabase(notes):
     
     # 首先检查 Supabase 中的现有数据
     print("🔍 检查 Supabase 中的现有笔记...")
-    response = requests.get(f'{url}/rest/v1/note', headers=headers)
+    response = requests.get(f'{url}/rest/v1/notes', headers=headers)
     
     existing_notes = []
     if response.status_code == 200:
@@ -96,7 +96,7 @@ def sync_notes_to_supabase(notes):
         
         try:
             response = requests.post(
-                f'{url}/rest/v1/note',
+                f'{url}/rest/v1/notes',
                 headers=headers,
                 data=json.dumps(note_data)
             )
@@ -127,7 +127,7 @@ def check_supabase_data():
     }
     
     print("🔍 检查 Supabase 数据...")
-    response = requests.get(f'{url}/rest/v1/note?order=created_at.desc', headers=headers)
+    response = requests.get(f'{url}/rest/v1/notes?order=created_at.desc', headers=headers)
     
     if response.status_code == 200:
         notes = response.json()
