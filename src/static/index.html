@@ -226,6 +226,19 @@
             transform: translateY(-1px);
         }
 
+        /* Translate button: low-saturation blue, darken on hover */
+        #translateBtn {
+            background: #9fbcd6; /* desaturated blue */
+            color: #072133;
+            border: none;
+            transition: background 0.15s ease, transform 0.12s ease;
+        }
+
+        #translateBtn:hover {
+            background: #6f9fc0; /* darker on hover */
+            transform: translateY(-1px);
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -367,6 +380,8 @@
                     <div class="editor-actions" id="editorActions" style="display: none;">
                         <button class="btn btn-save" id="saveBtn">💾 Save</button>
                         <button class="btn btn-delete" id="deleteBtn">🗑️ Delete</button>
+                        <input id="translateTarget" class="form-input" placeholder="e.g. Spanish, Chinese" style="width:160px; margin-left:8px;" />
+                        <button class="btn" id="translateBtn" title="Translate note">🌐 Translate</button>
                     </div>
                 </div>
 
@@ -482,6 +497,8 @@
                 if (eventTimeInput) {
                     eventTimeInput.addEventListener('change', autoSave);
                 }
+                const translateBtn = document.getElementById('translateBtn');
+                if (translateBtn) translateBtn.addEventListener('click', () => this.translateNote());
             }
 
             async loadNotes() {
@@ -835,6 +852,63 @@
                     this.showMessage('Note deleted successfully!', 'success');
                 } catch (error) {
                     this.showMessage(`Error deleting note: ${error.message}`, 'error');
+                }
+            }
+
+            async translateNote() {
+                if (!this.currentNote || !this.currentNote.id) {
+                    this.showMessage('Select a saved note to translate', 'error');
+                    return;
+                }
+
+                const target = document.getElementById('translateTarget')?.value.trim();
+                if (!target) {
+                    this.showMessage('Please enter a target language (e.g. Spanish)', 'error');
+                    return;
+                }
+
+                try {
+                    const translateBtn = document.getElementById('translateBtn');
+                    if (translateBtn) translateBtn.disabled = true;
+                    this.showMessage('Translating...', 'loading');
+
+                    const response = await fetch(`/api/notes/${this.currentNote.id}/translate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ target_language: target })
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.error || 'Translation failed');
+                    }
+
+                    const data = await response.json();
+                    // Expect both translated title and translated content from the backend
+                    if (data.translated_title || data.translated_content) {
+                        if (data.translated_title) {
+                            document.getElementById('noteTitle').value = data.translated_title;
+                            this.currentNote.title = data.translated_title;
+                            // update editor title and counter
+                            document.getElementById('editorTitle').textContent = data.translated_title || 'Untitled Note';
+                            const titleCounterNode = document.getElementById('titleCounter');
+                            if (titleCounterNode) titleCounterNode.textContent = `${Math.min((data.translated_title || '').length, 20)} / 20`;
+                        }
+
+                        if (data.translated_content) {
+                            document.getElementById('noteContent').value = data.translated_content;
+                            this.currentNote.content = data.translated_content;
+                        }
+
+                        this.showMessage('Translation applied. Press Save to persist.', 'success');
+                    } else {
+                        throw new Error('No translated text returned');
+                    }
+                } catch (error) {
+                    this.showMessage(`Error translating note: ${error.message}`, 'error');
+                } finally {
+                    const translateBtn2 = document.getElementById('translateBtn');
+                    if (translateBtn2) translateBtn2.disabled = false;
                 }
             }
 

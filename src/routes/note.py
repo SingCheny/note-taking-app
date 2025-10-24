@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from src.models.note import Note, db
+from src.llm import translate_to_language
 
 note_bp = Blueprint('note', __name__)
 
@@ -48,6 +49,29 @@ def create_note():
         return jsonify(note.to_dict()), 201
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@note_bp.route('/notes/<int:note_id>/translate', methods=['POST'])
+def translate_note(note_id):
+    """Translate the content of a note to a target language using the llm helper."""
+    try:
+        note = Note.query.get_or_404(note_id)
+        data = request.json or {}
+        target = data.get('target_language')
+        if not target:
+            return jsonify({'error': 'target_language is required'}), 400
+
+        # Call the llm helper to translate title and content
+        translated_title = translate_to_language(note.title or '', target)
+        translated_content = translate_to_language(note.content or '', target)
+
+        # Return translated text (do not modify DB automatically)
+        return jsonify({
+            'translated_title': translated_title,
+            'translated_content': translated_content
+        }), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @note_bp.route('/notes/<int:note_id>', methods=['GET'])
