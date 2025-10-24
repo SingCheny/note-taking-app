@@ -37,21 +37,27 @@ CORS(app)
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(note_bp, url_prefix='/api')
 
-# Database configuration - support both PostgreSQL (Supabase) and SQLite (local dev)
-if os.environ.get('DATABASE_URL'):
-    # Production: Use Supabase PostgreSQL
-    database_url = os.environ.get('DATABASE_URL')
-    # Handle postgres:// vs postgresql:// URL schemes
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-else:
-    # Development: Use SQLite fallback
+# Database configuration - smart environment detection
+VERCEL_ENV = os.environ.get('VERCEL_ENV')  # Vercel sets this automatically
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if VERCEL_ENV or not DATABASE_URL:
+    # Vercel environment or local development: Use SQLite
+    # This avoids PostgreSQL driver compilation issues in serverless
     ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     DB_PATH = os.path.join(ROOT_DIR, 'database', 'app.db')
     # ensure database directory exists
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
+    print(f"🗄️  Using SQLite database (Vercel/Local mode)")
+else:
+    # Local production testing with PostgreSQL
+    database_url = DATABASE_URL
+    # Handle postgres:// vs postgresql:// URL schemes
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    print(f"🗄️  Using PostgreSQL database")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -82,12 +88,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     debug = os.environ.get('FLASK_ENV') != 'production'
     
-    # Print startup info
-    db_url = os.environ.get('DATABASE_URL')
-    if db_url:
-        print(f"🗄️  Using Supabase PostgreSQL database")
-    else:
-        print(f"🗄️  Using local SQLite database")
+    # Print startup info - already printed above in database config
     
     print(f"🚀 Starting Flask app on http://localhost:{port}")
     print(f"🔧 Debug mode: {'ON' if debug else 'OFF'}")
