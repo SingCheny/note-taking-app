@@ -7,20 +7,19 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Loads environment variables from .env 
 
-# Safely retrieve GITHUB_TOKEN with clear error message if missing
-token = os.environ.get("GITHUB_TOKEN")
-if not token:
-    raise ValueError(
-        "GITHUB_TOKEN environment variable is required but not set. "
-        "Please add it to your .env file (local) or Vercel Environment Variables (production)."
-    )
-
 endpoint = "https://models.github.ai/inference" 
 model = "openai/gpt-4.1-mini" 
 
 # A function to call an LLM model and return the response 
 
 def call_llm_model(model, messages, temperature=1.0, top_p=1.0):
+	# Retrieve token at runtime instead of module import time
+	token = os.environ.get("GITHUB_TOKEN")
+	if not token:
+		raise ValueError(
+			"GITHUB_TOKEN environment variable is required but not set. "
+			"Please add it to your .env file (local) or Vercel Environment Variables (production)."
+		)
 	client = OpenAI(base_url=endpoint,api_key=token) 
 	response = client.chat.completions.create( 
 		messages=messages, 
