@@ -1,427 +1,222 @@
-# NoteTaker - Personal Note Management Application# NoteTaker - Personal Note Management Application
-
-
-
-A modern, responsive web application for managing personal notes with a beautiful user interface and full CRUD functionality.A modern, responsive web application for managing personal notes with a beautiful user interface and full CRUD functionality.
-
-
-
-## 🌟 Features## 🌟 Features
-
-
-
-- **Create Notes**: Add new notes with titles and rich content- **Create Notes**: Add new notes with titles and rich content
-
-- **Edit Notes**: Update existing notes with real-time editing- **Edit Notes**: Update existing notes with real-time editing
-
-- **Delete Notes**: Remove notes you no longer need- **Delete Notes**: Remove notes you no longer need
-
-- **Search Notes**: Find notes quickly by searching titles and content- **Search Notes**: Find notes quickly by searching titles and content
-
-- **Auto-save**: Notes are automatically saved as you type- **Auto-save**: Notes are automatically saved as you type
-
-- **Responsive Design**: Works perfectly on desktop and mobile devices- **Responsive Design**: Works perfectly on desktop and mobile devices
-
-- **Modern UI**: Beautiful gradient design with smooth animations- **Modern UI**: Beautiful gradient design with smooth animations
-
-- **Real-time Updates**: Instant feedback and updates- **Real-time Updates**: Instant feedback and updates
-
-
-
-## 🚀 Live Demo## 🚀 Live Demo
-
-
-
-The application is deployed and accessible at: **https://3dhkilc88dkk.manus.space**The application is deployed and accessible at: **https://3dhkilc88dkk.manus.space**
-
-
-
-## 🛠 Technology Stack## 🛠 Technology Stack
-
-
-
-### Frontend### Frontend
-
-- **HTML5**: Semantic markup structure- **HTML5**: Semantic markup structure
-
-- **CSS3**: Modern styling with gradients, animations, and responsive design- **CSS3**: Modern styling with gradients, animations, and responsive design
-
-- **JavaScript (ES6+)**: Interactive functionality and API communication- **JavaScript (ES6+)**: Interactive functionality and API communication
-
-
-
-### Backend### Backend
-
-- **Python Flask**: Web framework for API endpoints- **Python Flask**: Web framework for API endpoints
-
-- **SQLAlchemy**: ORM for database operations- **SQLAlchemy**: ORM for database operations
-
-- **Flask-CORS**: Cross-origin resource sharing support- **Flask-CORS**: Cross-origin resource sharing support
-
-
-
-### Database### Database
-
-- **SQLite**: Lightweight, file-based database for data persistence- **SQLite**: Lightweight, file-based database for data persistence
-
-
-
-## 📁 Project Structure## 📁 Project Structure
-
-
-
-``````
-
-notetaking-app/notetaking-app/
-
-├── src/├── src/
-
-│   ├── models/│   ├── models/
-
-│   │   ├── user.py          # User model (template)│   │   ├── user.py          # User model (template)
-
-│   │   └── note.py          # Note model with database schema│   │   └── note.py          # Note model with database schema
-
-│   ├── routes/│   ├── routes/
-
-│   │   ├── user.py          # User API routes (template)│   │   ├── user.py          # User API routes (template)
-
-│   │   └── note.py          # Note API endpoints│   │   └── note.py          # Note API endpoints
-
-│   ├── static/│   ├── static/
-
-│   │   └── index.html       # Frontend application│   │   ├── index.html       # Frontend application
-
-│   ├── database/│   │   └── favicon.ico      # Application icon
-
-│   │   └── app.db           # SQLite database file│   ├── database/
-
-│   └── main.py              # Flask application entry point│   │   └── app.db           # SQLite database file
-
-├── venv/                    # Python virtual environment│   └── main.py              # Flask application entry point
-
-├── requirements.txt         # Python dependencies├── venv/                    # Python virtual environment
-
-└── README.md               # This file├── requirements.txt         # Python dependencies
-
-```└── README.md               # This file
-
-```
-
-## 🔧 Local Development Setup
-
-## 🔧 Local Development Setup
+﻿# NoteTaker - Personal Note Management Application
+
+A modern, responsive web application for managing personal notes with a beautiful user interface and full CRUD functionality.
+
+##  Features
+
+- **Create Notes**: Add new notes with titles and rich content
+- **Edit Notes**: Update existing notes with real-time editing
+- **Delete Notes**: Remove notes you no longer need
+- **Search Notes**: Find notes quickly by searching titles and content
+- **Auto-save**: Notes are automatically saved as you type
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+- **Modern UI**: Beautiful gradient design with smooth animations
+- **Real-time Updates**: Instant feedback and updates
+
+##  Live Demo
+
+The application is deployed and accessible at: **https://3dhkilc88dkk.manus.space**
+
+##  Technology Stack
+
+### Frontend
+- **HTML5**: Semantic markup structure
+- **CSS3**: Modern styling with gradients, animations, and responsive design
+- **JavaScript (ES6+)**: Interactive functionality and API communication
+
+### Backend
+- **Python Flask**: Web framework for API endpoints
+- **SQLAlchemy**: ORM for database operations
+- **Flask-CORS**: Cross-origin resource sharing support
+
+### Database
+- **SQLite**: Lightweight, file-based database for data persistence
+
+##  Project Structure
+
+\\\
+notetaking-app/
+ src/
+    models/
+       user.py          # User model (template)
+       note.py          # Note model with database schema
+    routes/
+       user.py          # User API routes (template)
+       note.py          # Note API endpoints
+    static/
+       index.html       # Frontend application
+    database/
+       app.db           # SQLite database file
+    main.py              # Flask application entry point
+ api/
+    index.py             # Vercel serverless entry point
+ venv/                    # Python virtual environment
+ requirements.txt         # Python dependencies
+ vercel.json              # Vercel configuration
+ README.md               # This file
+\\\
+
+##  Local Development Setup
 
 ### Prerequisites
-
-- Python 3.11+### Prerequisites
-
-- pip (Python package manager)- Python 3.11+
-
+- Python 3.11+
 - pip (Python package manager)
 
 ### Installation Steps
 
-### Installation Steps
-
 1. **Clone or download the project**
+   \\\ash
+   git clone https://github.com/SingCheny/note-taking-app.git
+   cd note-taking-app
+   \\\
 
-   ```bash1. **Clone or download the project**
+2. **Create virtual environment**
+   \\\ash
+   python -m venv venv
+   \\\
 
-   git clone https://github.com/SingCheny/note-taking-app.git   ```bash
-
-   cd note-taking-app   python -m venv venv
-
-   ```   ```
-
-
-
-2. **Create virtual environment**2. **Activate the virtual environment**
-
-   ```bash   ```bash
-
-   python -m venv venv   source venv/bin/activate
-
-   ```   ```
-
-
-
-3. **Activate the virtual environment**   Remark: On Windows, use `venv\Scripts\activate`
-
-   ```bash
-
-   # On Windows3. **Install dependencies**
-
-   venv\Scripts\activate   ```bash
-
-      pip install -r requirements.txt
-
-   # On macOS/Linux   ```
-
+3. **Activate the virtual environment**
+   \\\ash
+   # On Windows
+   venv\Scripts\activate
+   
+   # On macOS/Linux
    source venv/bin/activate
+   \\\
 
-   ```4. **Run the application**
-
-   ```bash
-
-4. **Install dependencies**   python src/main.py
-
-   ```bash   ```
-
+4. **Install dependencies**
+   \\\ash
    pip install -r requirements.txt
-
-   ```5. **Access the application**
-
-   - Open your browser and go to `http://localhost:5001`
+   \\\
 
 5. **Run the application**
-
-   ```bash## 📡 API Endpoints
-
+   \\\ash
    python src/main.py
+   \\\
 
-   ```### Notes API
+6. **Access the application**
+   - Open your browser and go to \http://localhost:5001\
 
-- `GET /api/notes` - Get all notes
-
-6. **Access the application**- `POST /api/notes` - Create a new note
-
-   - Open your browser and go to `http://localhost:5001`- `GET /api/notes/<id>` - Get a specific note
-
-- `PUT /api/notes/<id>` - Update a note
-
-## 📡 API Endpoints- `DELETE /api/notes/<id>` - Delete a note
-
-- `GET /api/notes/search?q=<query>` - Search notes
+##  API Endpoints
 
 ### Notes API
+- \GET /api/notes\ - Get all notes
+- \POST /api/notes\ - Create a new note
+- \GET /api/notes/<id>\ - Get a specific note
+- \PUT /api/notes/<id>\ - Update a note
+- \DELETE /api/notes/<id>\ - Delete a note
+- \GET /api/notes/search?q=<query>\ - Search notes
+- \POST /api/notes/<id>/translate\ - Translate note to target language
+- \POST /api/notes/generate\ - Generate note from text using LLM
+- \GET /api/health\ - Health check endpoint
 
-- `GET /api/notes` - Get all notes### Request/Response Format
-
-- `POST /api/notes` - Create a new note```json
-
-- `GET /api/notes/<id>` - Get a specific note{
-
-- `PUT /api/notes/<id>` - Update a note  "id": 1,
-
-- `DELETE /api/notes/<id>` - Delete a note  "title": "My Note Title",
-
-- `GET /api/notes/search?q=<query>` - Search notes  "content": "Note content here...",
-
-- `POST /api/notes/<id>/translate` - Translate note to target language  "created_at": "2025-09-03T11:26:38.123456",
-
-- `POST /api/notes/generate` - Generate note from text using LLM  "updated_at": "2025-09-03T11:27:30.654321"
-
-}
-
-### Request/Response Format```
-
-```json
-
-{## 🎨 User Interface Features
-
+### Request/Response Format
+\\\json
+{
   "id": 1,
-
-  "title": "My Note Title",### Sidebar
-
-  "content": "Note content here...",- **Search Box**: Real-time search through note titles and content
-
-  "created_at": "2025-09-03T11:26:38.123456",- **New Note Button**: Create new notes instantly
-
-  "updated_at": "2025-09-03T11:27:30.654321",- **Notes List**: Scrollable list of all notes with previews
-
-  "tags": ["work", "important"],- **Note Previews**: Show title, content preview, and last modified date
-
+  "title": "My Note Title",
+  "content": "Note content here...",
+  "created_at": "2025-09-03T11:26:38.123456",
+  "updated_at": "2025-09-03T11:27:30.654321",
+  "tags": ["work", "important"],
   "event_date": "2025-10-25",
+  "event_time": "17:00"
+}
+\\\
 
-  "event_time": "17:00"### Editor Panel
-
-}- **Title Input**: Edit note titles
-
-```- **Content Textarea**: Rich text editing area
-
-- **Save Button**: Manual save option (auto-save also available)
-
-## 🎨 User Interface Features- **Delete Button**: Remove notes with confirmation
-
-- **Real-time Updates**: Changes reflected immediately
+##  User Interface Features
 
 ### Sidebar
+- **Search Box**: Real-time search through note titles and content
+- **New Note Button**: Create new notes instantly
+- **Notes List**: Scrollable list of all notes with previews
+- **Note Previews**: Show title, content preview, and last modified date
 
-- **Search Box**: Real-time search through note titles and content### Design Elements
-
-- **New Note Button**: Create new notes instantly- **Gradient Background**: Beautiful purple gradient backdrop
-
-- **Notes List**: Scrollable list of all notes with previews- **Glass Morphism**: Semi-transparent panels with backdrop blur
-
-- **Note Previews**: Show title, content preview, and last modified date- **Smooth Animations**: Hover effects and transitions
-
-- **Responsive Layout**: Adapts to different screen sizes
-
-### Editor Panel- **Modern Typography**: Clean, readable font stack
-
+### Editor Panel
 - **Title Input**: Edit note titles
-
-- **Content Textarea**: Rich text editing area## 🔒 Database Schema
-
+- **Content Textarea**: Rich text editing area
 - **Save Button**: Manual save option (auto-save also available)
+- **Delete Button**: Remove notes with confirmation
+- **Translate Button**: Translate notes to different languages
+- **Generate Notes**: Create structured notes from natural language
+- **Real-time Updates**: Changes reflected immediately
 
-- **Delete Button**: Remove notes with confirmation### Notes Table
-
-- **Translate Button**: Translate notes to different languages```sql
-
-- **Real-time Updates**: Changes reflected immediatelyCREATE TABLE note (
-
-    id INTEGER PRIMARY KEY,
-
-### Design Elements    title VARCHAR(200) NOT NULL,
-
-- **Gradient Background**: Beautiful purple gradient backdrop    content TEXT NOT NULL,
-
-- **Glass Morphism**: Semi-transparent panels with backdrop blur    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-- **Smooth Animations**: Hover effects and transitions    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-
-- **Responsive Layout**: Adapts to different screen sizes);
-
-- **Modern Typography**: Clean, readable font stack```
-
+### Design Elements
+- **Gradient Background**: Beautiful purple gradient backdrop
+- **Glass Morphism**: Semi-transparent panels with backdrop blur
+- **Smooth Animations**: Hover effects and transitions
+- **Responsive Layout**: Adapts to different screen sizes
+- **Modern Typography**: Clean, readable font stack
 - **Theme Switcher**: Toggle between default and warm themes
 
-## 🚀 Deployment
+##  Database Schema
 
-## 🔒 Database Schema
-
-The application is configured for easy deployment with:
-
-### Notes Table- CORS enabled for cross-origin requests
-
-```sql- Host binding to `0.0.0.0` for external access
-
-CREATE TABLE note (- Production-ready Flask configuration
-
-    id INTEGER PRIMARY KEY,- Persistent SQLite database
-
+### Notes Table
+\\\sql
+CREATE TABLE note (
+    id INTEGER PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
-
-    content TEXT NOT NULL,## 🔧 Configuration
-
+    content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,### Environment Variables
-
-    tags VARCHAR(200),- `FLASK_ENV`: Set to `development` for debug mode
-
-    event_date DATE,- `SECRET_KEY`: Flask secret key for sessions
-
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tags VARCHAR(200),
+    event_date DATE,
     event_time TIME,
+    position INTEGER
+);
+\\\
 
-    position INTEGER### Database Configuration
-
-);- Database file: `src/database/app.db`
-
-```- Automatic table creation on first run
-
-- SQLAlchemy ORM for database operations
-
-## 🚀 Deployment
-
-## 📱 Browser Compatibility
+##  Deployment
 
 ### Vercel Deployment
 
-- Chrome/Chromium (recommended)
+1. **Push code to GitHub**
+   \\\ash
+   git push origin main
+   \\\
 
-1. **Push code to GitHub**- Firefox
-
-   ```bash- Safari
-
-   git push origin main- Edge
-
-   ```- Mobile browsers (iOS Safari, Chrome Mobile)
-
-
-
-2. **Import project in Vercel**## 🤝 Contributing
-
+2. **Import project in Vercel**
    - Go to https://vercel.com/new
+   - Import your GitHub repository
+   - Configure environment variables
 
-   - Import your GitHub repository1. Fork the repository
+3. **Set Environment Variables in Vercel**
+   - \GITHUB_TOKEN\ - Your GitHub personal access token
+   - \SECRET_KEY\ - Flask secret key
+   - \VERCEL_ENV\ - Set automatically by Vercel
 
-   - Configure environment variables2. Create a feature branch
-
-3. Make your changes
-
-3. **Set Environment Variables in Vercel**4. Test thoroughly
-
-   - `GITHUB_TOKEN` - Your GitHub personal access token5. Submit a pull request
-
-   - `SECRET_KEY` - Flask secret key
-
-   - `VERCEL_ENV` - Set automatically by Vercel## 📄 License
-
-
-
-4. **Deploy**This project is open source and available under the MIT License.
-
+4. **Deploy**
    - Vercel will automatically deploy on every push to main
 
-## 🆘 Support
-
 ### Environment Variables
-
-- `FLASK_ENV`: Set to `development` for debug modeFor issues or questions:
-
-- `SECRET_KEY`: Flask secret key for sessions1. Check the browser console for error messages
-
-- `GITHUB_TOKEN`: GitHub token for LLM API access2. Verify the Flask server is running
-
-- `VERCEL_ENV`: Automatically set by Vercel platform3. Ensure all dependencies are installed
-
-4. Check network connectivity for the deployed version
+- \FLASK_ENV\: Set to \development\ for debug mode
+- \SECRET_KEY\: Flask secret key for sessions
+- \GITHUB_TOKEN\: GitHub token for LLM API access
+- \VERCEL_ENV\: Automatically set by Vercel platform
 
 ### Database Configuration
-
-- **Local**: File-based SQLite (`src/database/app.db`)## 🎯 Future Enhancements
-
+- **Local**: File-based SQLite (\src/database/app.db\)
 - **Vercel**: In-memory SQLite (serverless environment)
+- Automatic table creation on first run
+- SQLAlchemy ORM for database operations
 
-- Automatic table creation on first runPotential improvements for future versions:
+##  AI Features
 
-- SQLAlchemy ORM for database operations- User authentication and multi-user support
+### LLM Integration
+- **Translation**: Translate note titles and content to different languages
+- **Note Generation**: Extract structured notes from natural language input
+- **Date/Time Extraction**: Automatically parse dates and times from text
 
-- Note categories and tags
-
-## 🤖 AI Features- Rich text formatting (bold, italic, lists)
-
-- File attachments
-
-### LLM Integration- Export functionality (PDF, Markdown)
-
-- **Translation**: Translate note titles and content to different languages- Dark/light theme toggle
-
-- **Note Generation**: Extract structured notes from natural language input- Offline support with service workers
-
-- **Date/Time Extraction**: Automatically parse dates and times from text- Note sharing capabilities
-
-
-
-### Supported Languages---
-
+### Supported Languages
 - English
-
-- Chinese (Simplified & Traditional)**Built with ❤️ using Flask, SQLite, and modern web technologies**
-
+- Chinese (Simplified & Traditional)
 - Spanish
-
-- French#   L a s t   u p d a t e d :   1 0 / 2 5 / 2 0 2 5   0 1 : 2 9 : 1 4 
-
-- German 
-
-- Japanese 
+- French
+- German
+- Japanese
 - And more...
 
-## 📱 Browser Compatibility
+##  Browser Compatibility
 
 - Chrome/Chromium (recommended)
 - Firefox
@@ -429,18 +224,18 @@ CREATE TABLE note (- Production-ready Flask configuration
 - Edge
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🔧 Configuration Files
+##  Configuration Files
 
-- `requirements.txt` - Python dependencies
-- `vercel.json` - Vercel deployment configuration
-- `api/index.py` - Vercel serverless entry point
-- `.env` - Local environment variables (not committed)
+- \equirements.txt\ - Python dependencies
+- \ercel.json\ - Vercel deployment configuration
+- \pi/index.py\ - Vercel serverless entry point
+- \.env\ - Local environment variables (not committed)
 
-## 📄 License
+##  License
 
 This project is open source and available under the MIT License.
 
-## 🆘 Support
+##  Support
 
 For issues or questions:
 1. Check the browser console for error messages
@@ -449,7 +244,7 @@ For issues or questions:
 4. Check network connectivity for the deployed version
 5. Verify environment variables are set correctly
 
-## 🎯 Future Enhancements
+##  Future Enhancements
 
 Potential improvements for future versions:
 - User authentication and multi-user support
@@ -465,6 +260,6 @@ Potential improvements for future versions:
 
 ---
 
-**Built with ❤️ using Flask, SQLite, and modern web technologies**
+**Built with  using Flask, SQLite, and modern web technologies**
 
 *Last updated: October 25, 2025*
