@@ -6,7 +6,15 @@ from dotenv import load_dotenv
 
 
 load_dotenv()  # Loads environment variables from .env 
-token = os.environ["GITHUB_TOKEN"] 
+
+# Safely retrieve GITHUB_TOKEN with clear error message if missing
+token = os.environ.get("GITHUB_TOKEN")
+if not token:
+    raise ValueError(
+        "GITHUB_TOKEN environment variable is required but not set. "
+        "Please add it to your .env file (local) or Vercel Environment Variables (production)."
+    )
+
 endpoint = "https://models.github.ai/inference" 
 model = "openai/gpt-4.1-mini" 
 
